@@ -1,0 +1,42 @@
+{
+  "site": {
+    "title": "근의학 강의 녹취 아카이브",
+    "subtitle": "바른몸애 & 한국 근의학 연구소",
+    "description": "최신근육학총설 동영상 강의를 주제별·시간별로 정리한 학습용 녹취 아카이브"
+  },
+  "series": [
+    {
+      "id": "kmfc-vol1",
+      "title": "최신근육학총설 1권",
+      "description": "기초 용어해설 및 주요 근육별 해부학·임상 강의 시리즈",
+      "sourceBoardUrl": "https://m.cafe.daum.net/kmfc2/haqk",
+      "order": 1
+    }
+  ],
+  "lectures": [
+    {
+      "id": "vol1-01-terminology",
+      "seriesId": "kmfc-vol1",
+      "episode": 1,
+      "title": "최신근육학총설 1권 용어해설",
+      "instructor": "단송",
+      "date": "2019-11-13",
+      "duration": "52:52",
+      "durationSeconds": 3172,
+      "sourceUrl": "https://m.cafe.daum.net/kmfc2/haqk/11",
+      "tags": [
+        "용어해설",
+        "트리거포인트",
+        "촉진법",
+        "주동근·길항근",
+        "단축·이완수축",
+        "호흡근"
+      ],
+      "summary": "『최신근육학총설』 1권 본격 학습에 앞서 근육학을 바라보는 관점과 핵심 기초 용어를 해설하는 첫 번째 강의입니다. 통증의 표적(타겟)이 아닌 원인점으로서의 트리거포인트(TP) 개념과 한의학 경혈·경락과의 연결성, 평촉진과 꼬집기(쥐기) 촉진의 실전 원리, 원발성·위성·이차성 및 급·만성 TP의 연쇄 기전, 주동근·길항근·협조근의 균형 원리, 그리고 단축·이완 수축과 체온·호흡근·자세의 관계까지 폭넓게 다룹니다.",
+      "glossaryCount": 25,
+      "sectionCount": 8,
+      "file": "data/lectures/vol1-01-terminology.json",
+      "markdownFile": "transcripts/vol1-01-terminology.md"
+    }
+  ]
+}
