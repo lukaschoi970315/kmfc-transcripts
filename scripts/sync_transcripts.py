@@ -110,6 +110,7 @@ def main() -> None:
                 "id": lid,
                 "seriesId": lecture.get("seriesId", "kmfc-vol1"),
                 "episode": lecture.get("episode", 1),
+                **({"episodeLabel": str(lecture["episodeLabel"])} if lecture.get("episodeLabel") else {}),
                 "title": lecture["title"],
                 "instructor": lecture.get("instructor", ""),
                 "date": lecture.get("date", ""),

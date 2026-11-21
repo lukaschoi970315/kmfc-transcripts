@@ -217,7 +217,7 @@ function renderSidebar() {
             .map((l) => {
               const isActive = l.id === state.activeLectureId && state.viewMode === 'lecture';
               const isDone = state.completed.has(l.id);
-              const epLabel = String(l.episode || 1).padStart(2, '0');
+              const epLabel = escapeHtml(l.episodeLabel || String(l.episode || 1).padStart(2, '0'));
               return `
                 <li>
                   <button type="button" class="episode-item-btn ${isActive ? 'active' : ''}" data-lecture-id="${escapeHtml(l.id)}">
@@ -381,7 +381,7 @@ function renderLecture(lecture) {
   state.activeLecture = lecture;
   state.activeLectureId = lecture.id;
   const series = state.catalog?.series.find((s) => s.id === lecture.seriesId);
-  const epNum = String(lecture.episode || 1).padStart(2, '0');
+  const epNum = escapeHtml(lecture.episodeLabel || String(lecture.episode || 1).padStart(2, '0'));
 
   document.title = `${lecture.title} · ${state.catalog?.site?.title || '근의학 강의 녹취 아카이브'}`;
   el.lectureSeriesBadge.textContent = series ? series.title : '강의 시리즈';
@@ -1211,15 +1211,16 @@ function bindEvents() {
 
   el.downloadTemplateBtn.addEventListener('click', () => {
     const template = {
-      id: 'vol1-03-example',
+      id: 'vol1-10-example',
       seriesId: 'kmfc-vol1',
-      episode: 3,
-      title: '최신근육학총설 3(강의명)',
+      episode: 10,
+      episodeLabel: '10',
+      title: '최신근육학총설 10(강의명)',
       instructor: '단송',
-      date: '2019-11-20',
+      date: '2020-01-10',
       duration: '45:00',
       durationSeconds: 2700,
-      sourceUrl: 'https://m.cafe.daum.net/kmfc2/haqk/13',
+      sourceUrl: 'https://m.cafe.daum.net/kmfc2/haqk/26',
       videoId: '카카오TV_영상ID_입력',
       tags: ['키워드1', '키워드2'],
       overview: '강의 전체 요약을 여기에 작성합니다.',
