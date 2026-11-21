@@ -67,6 +67,34 @@
       "sectionCount": 8,
       "file": "data/lectures/vol1-02-trapezius.json",
       "markdownFile": "transcripts/vol1-02-trapezius.md"
+    },
+    {
+      "id": "vol1-03-trapezius-part2",
+      "seriesId": "kmfc-vol1",
+      "episode": 3,
+      "title": "최신근육학총설 3",
+      "instructor": "단송",
+      "date": "2019-11-14",
+      "duration": "55:16",
+      "durationSeconds": 3316,
+      "sourceUrl": "https://m.cafe.daum.net/kmfc2/haqk/13",
+      "videoId": "va53ectB4BtLt4X1X4jXXHd",
+      "videoEmbedUrl": "",
+      "tags": [
+        "승모근중부섬유",
+        "승모근하부섬유",
+        "척추측만증",
+        "견관절90도",
+        "불통즉통",
+        "TP1",
+        "턱관절·치아",
+        "추골동맥어지럼증"
+      ],
+      "summary": "『최신근육학총설』 1권 2강에 바로 이어지는 후속 강의로, 승모근 중부섬유(C6–T5)와 하부섬유(T12)의 편측·양측 기능 및 고정점별 체형 변형(척추측만증·일자 등뼈·새가슴·과후만 절벽가슴·머슴 체형), 견관절 90° 이상 거상 지원과 오십견 연관성, 상지 과사용 후 '정리정돈(균형감)' 원리, 그리고 34–35페이지 통증 양상('불통즉통', 기압·금극목, TP1·TP2 촉진 구분, 삼차신경·치아·추골동맥 어지럼증 연쇄)을 다룹니다.",
+      "glossaryCount": 22,
+      "sectionCount": 8,
+      "file": "data/lectures/vol1-03-trapezius-part2.json",
+      "markdownFile": "transcripts/vol1-03-trapezius-part2.md"
     }
   ]
 }
