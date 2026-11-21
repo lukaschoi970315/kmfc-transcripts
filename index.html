@@ -129,6 +129,52 @@
             </div>
           </header>
 
+          <!-- Embedded Lecture Video Player -->
+          <section id="lecturePlayerSection" class="lecture-player-section hidden" aria-label="강의 영상 플레이어">
+            <div class="player-bar">
+              <div class="player-bar-left">
+                <span class="player-badge">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <path d="M8 5.14v14l11-7-11-7z"/>
+                  </svg>
+                  강의 영상
+                </span>
+                <span id="playerTimeIndicator" class="player-time-chip">00:00부터 대기</span>
+                <span class="player-hint">타임스탬프를 클릭하면 해당 시점으로 이동합니다</span>
+              </div>
+              <div class="player-bar-actions">
+                <button id="togglePlayerPipBtn" class="tool-btn" type="button" aria-pressed="false" title="우측 하단 작은 화면으로 고정">미니 창</button>
+                <button id="togglePlayerCollapseBtn" class="tool-btn" type="button" aria-expanded="true">영상 접기</button>
+                <a id="openExternalPlayerLink" class="tool-btn player-external-link" href="#" target="_blank" rel="noopener noreferrer" title="새 창에서 영상 플레이어만 열기">새 창 ↗</a>
+              </div>
+            </div>
+
+            <div id="playerFrameBox" class="player-frame-box">
+              <div class="player-pip-bar">
+                <span id="pipTitleLabel" class="pip-title">강의 영상 재생</span>
+                <div class="pip-bar-actions">
+                  <button id="unpinPlayerBtn" class="pip-mini-btn" type="button" title="원래 위치로 되돌리기">제자리</button>
+                  <button id="closePipBtn" class="pip-mini-btn" type="button" aria-label="미니 창 닫기">✕</button>
+                </div>
+              </div>
+              <div class="player-frame-wrap">
+                <iframe
+                  id="lectureVideoIframe"
+                  title="강의 동영상 플레이어"
+                  src="about:blank"
+                  loading="lazy"
+                  allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
+                  allowfullscreen
+                ></iframe>
+              </div>
+            </div>
+
+            <div id="pipPlaceholderNotice" class="pip-placeholder hidden">
+              <span>우측 하단 미니 창으로 영상을 띄워두고 있습니다.</span>
+              <button id="restorePlayerInlineBtn" class="tool-btn" type="button">원래 크기로 돌아가기</button>
+            </div>
+          </section>
+
           <!-- Sticky Reading Controls -->
           <div class="reading-toolbar" role="region" aria-label="보기 및 내보내기 도구">
             <div class="view-tabs" role="tablist" aria-label="강의 보기 탭">
@@ -239,9 +285,9 @@
         <div class="guide-step">
           <h3>1. GitHub 저장소에 새 강의 추가하기</h3>
           <ol class="guide-ol">
-            <li><code>data/lectures/</code> 폴더에 새 강의 파일(예: <code>vol1-02-trapezius.json</code>)을 추가합니다.</li>
+            <li><code>data/lectures/</code> 폴더에 새 강의 파일(예: <code>vol1-03-next.json</code>, <code>videoId</code> 포함)을 추가합니다.</li>
             <li><code>python3 scripts/sync_transcripts.py</code>를 실행하면 <code>data/catalog.json</code>, 통합 검색 색인, <code>transcripts/*.md</code> 파일이 자동으로 갱신됩니다.</li>
-            <li>GitHub에 푸시하면 GitHub Pages 사이트에 즉시 반영됩니다.</li>
+            <li>GitHub에 푸시하면 GitHub Pages 사이트에 영상 플레이어와 함께 즉시 반영됩니다.</li>
           </ol>
         </div>
 

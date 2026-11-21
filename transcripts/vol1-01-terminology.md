@@ -4,6 +4,7 @@
 - **게시일**: 2019-11-13
 - **재생시간**: 52:52
 - **원본 출처**: https://m.cafe.daum.net/kmfc2/haqk/11
+- **영상 바로보기**: https://kakaotv.daum.net/embed/player/cliplink/v59b2QlQjbMeGjZiAeeIlGM
 - **태그**: 용어해설, 트리거포인트, 촉진법, 주동근·길항근, 단축·이완수축, 호흡근
 
 ## 강의 개요

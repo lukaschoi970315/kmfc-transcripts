@@ -30,6 +30,13 @@ def render_markdown(lecture: dict) -> str:
         lines.append(f"- **재생시간**: {lecture['duration']}")
     if lecture.get("sourceUrl"):
         lines.append(f"- **원본 출처**: {lecture['sourceUrl']}")
+    embed_url = lecture.get("videoEmbedUrl") or (
+        f"https://kakaotv.daum.net/embed/player/cliplink/{lecture['videoId']}"
+        if lecture.get("videoId")
+        else ""
+    )
+    if embed_url:
+        lines.append(f"- **영상 바로보기**: {embed_url}")
     if lecture.get("tags"):
         lines.append(f"- **태그**: {', '.join(lecture['tags'])}")
     lines.append("")
@@ -109,6 +116,8 @@ def main() -> None:
                 "duration": lecture.get("duration", ""),
                 "durationSeconds": lecture.get("durationSeconds", 0),
                 "sourceUrl": lecture.get("sourceUrl", ""),
+                "videoId": lecture.get("videoId", ""),
+                "videoEmbedUrl": lecture.get("videoEmbedUrl", ""),
                 "tags": lecture.get("tags", []),
                 "summary": lecture.get("overview", ""),
                 "glossaryCount": len(lecture.get("glossary", [])),

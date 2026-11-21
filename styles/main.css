@@ -699,6 +699,167 @@ a {
   border: 1px solid var(--border-hairline);
 }
 
+/* Embedded Lecture Video Player */
+.lecture-player-section {
+  margin-top: 20px;
+  margin-bottom: 12px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--radius-lg);
+  padding: 12px 14px 14px;
+  box-shadow: var(--shadow-sm);
+}
+
+.player-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 12px;
+}
+
+.player-bar-left {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.player-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.player-time-chip {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 99px;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.player-hint {
+  font-size: 12px;
+  color: var(--ink-muted);
+}
+
+.player-bar-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.player-external-link {
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+
+.player-frame-box {
+  margin-top: 10px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid var(--border-hairline);
+  background: #0d1015;
+}
+
+.player-pip-bar {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 10px;
+  background: #171c24;
+  color: #edf1f7;
+  font-size: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.pip-title {
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pip-bar-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.pip-mini-btn {
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.08);
+  color: #edf1f7;
+  border-radius: 5px;
+  padding: 2px 7px;
+  font-size: 11.5px;
+  cursor: pointer;
+}
+
+.pip-mini-btn:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.player-frame-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #0d1015;
+}
+
+.player-frame-wrap iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.lecture-player-section.is-collapsed .player-frame-box {
+  display: none;
+}
+
+.lecture-player-section.is-pip .player-frame-box {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  width: min(390px, calc(100vw - 24px));
+  margin-top: 0;
+  z-index: 45;
+  box-shadow: var(--shadow-lg);
+  border-color: var(--border-strong);
+}
+
+.lecture-player-section.is-pip .player-pip-bar {
+  display: flex;
+}
+
+.pip-placeholder {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-subtle);
+  border: 1px dashed var(--border-strong);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--ink-secondary);
+}
+
 /* Sticky Reading Toolbar */
 .reading-toolbar {
   position: sticky;
@@ -882,14 +1043,22 @@ a {
   font-weight: 600;
   color: var(--accent);
   background: var(--accent-soft);
+  border: 1px solid transparent;
   padding: 4px 9px;
   border-radius: 6px;
   flex-shrink: 0;
+  cursor: pointer;
+  transition: border-color 0.14s ease, background 0.14s ease;
+}
+
+button.section-time-badge:hover {
+  border-color: var(--term-border);
+  background: var(--term-bg);
 }
 
 .paragraph-block {
   display: grid;
-  grid-template-columns: 62px minmax(0, 1fr);
+  grid-template-columns: 64px minmax(0, 1fr);
   gap: 14px;
   padding: 8px 10px;
   margin: 0 -10px;
@@ -920,10 +1089,17 @@ body.hide-timestamps .para-time {
   padding-top: 5px;
   user-select: none;
   cursor: pointer;
+  background: transparent;
+  border: 0;
+  padding-left: 0;
+  padding-right: 0;
+  text-align: left;
+  align-self: start;
 }
 
 .para-time:hover {
   color: var(--accent);
+  font-weight: 600;
 }
 
 .para-text {
@@ -1515,6 +1691,14 @@ mark.search-hit {
   .reading-toolbar {
     position: static;
   }
+  .player-hint {
+    display: none;
+  }
+  .lecture-player-section.is-pip .player-frame-box {
+    right: 10px;
+    bottom: 10px;
+    width: calc(100vw - 20px);
+  }
 }
 
 @media (max-width: 480px) {
@@ -1535,6 +1719,7 @@ mark.search-hit {
   .topbar,
   .sidebar,
   .sidebar-backdrop,
+  .lecture-player-section,
   .toc-rail,
   .reading-toolbar,
   .study-notes-box,

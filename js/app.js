@@ -9,6 +9,7 @@ const STORAGE_KEYS = {
   timestamps: 'kmfc_timestamps',
   completed: 'kmfc_completed_lectures',
   notes: 'kmfc_lecture_notes',
+  playerCollapsed: 'kmfc_player_collapsed',
 };
 
 const state = {
@@ -25,6 +26,9 @@ const state = {
   notes: {},
   previewCounter: 0,
   tocObserver: null,
+  playerCollapsed: false,
+  playerPip: false,
+  loadedVideoLectureId: null,
 };
 
 const el = {};
@@ -41,6 +45,10 @@ function cacheElements() {
     'mainContent', 'lectureView', 'masterGlossaryView',
     'lectureSeriesBadge', 'lectureEpisodeNum', 'lectureCompletedBadge',
     'lectureTitle', 'lectureMetaRow', 'lectureTagsRow',
+    'lecturePlayerSection', 'playerTimeIndicator', 'togglePlayerPipBtn',
+    'togglePlayerCollapseBtn', 'openExternalPlayerLink', 'playerFrameBox',
+    'pipTitleLabel', 'unpinPlayerBtn', 'closePipBtn', 'lectureVideoIframe',
+    'pipPlaceholderNotice', 'restorePlayerInlineBtn',
     'tabTranscript', 'tabSummary', 'tabGlossary', 'glossaryCountBadge',
     'inpageSearchInput', 'inpageMatchCount',
     'toggleTimestampsBtn', 'toggleFontBtn', 'fontSizeCycleBtn',
@@ -90,6 +98,7 @@ function loadPreferences() {
     const savedSize = localStorage.getItem(STORAGE_KEYS.size) || 'md';
     const savedTs = localStorage.getItem(STORAGE_KEYS.timestamps);
     const showTs = savedTs === null ? true : savedTs === 'true';
+    state.playerCollapsed = localStorage.getItem(STORAGE_KEYS.playerCollapsed) === 'true';
 
     applyTheme(savedTheme, false);
     applyFont(savedFont, false);
@@ -277,6 +286,97 @@ function highlightText(rawText, query, glossaryTerms) {
   return html;
 }
 
+function parseTimestampToSeconds(ts) {
+  if (!ts) return 0;
+  const parts = String(ts).trim().split(':').map((n) => Number(n));
+  if (parts.some((n) => Number.isNaN(n) || n < 0)) return 0;
+  if (parts.length === 2) return parts[0] * 60 + parts[1];
+  if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
+  return 0;
+}
+
+function getVideoBaseEmbedUrl(lecture) {
+  if (!lecture) return '';
+  if (lecture.videoEmbedUrl) return lecture.videoEmbedUrl;
+  if (lecture.videoId) return `https://kakaotv.daum.net/embed/player/cliplink/${encodeURIComponent(lecture.videoId)}`;
+  return '';
+}
+
+function buildVideoEmbedUrl(lecture, startSeconds = 0, autoplay = false) {
+  const base = getVideoBaseEmbedUrl(lecture);
+  if (!base) return '';
+  const url = new URL(base);
+  const sec = Math.max(0, Math.floor(Number(startSeconds) || 0));
+  if (sec > 0) url.searchParams.set('start', String(sec));
+  if (autoplay) url.searchParams.set('autoplay', '1');
+  return url.toString();
+}
+
+function updatePlayerControlsUI() {
+  if (!el.lecturePlayerSection) return;
+  const isPip = state.playerPip;
+  const isCollapsed = state.playerCollapsed && !isPip;
+  el.lecturePlayerSection.classList.toggle('is-pip', isPip);
+  el.lecturePlayerSection.classList.toggle('is-collapsed', isCollapsed);
+  el.pipPlaceholderNotice.classList.toggle('hidden', !isPip);
+  el.togglePlayerPipBtn.classList.toggle('active', isPip);
+  el.togglePlayerPipBtn.setAttribute('aria-pressed', String(isPip));
+  el.togglePlayerCollapseBtn.setAttribute('aria-expanded', String(!isCollapsed));
+  el.togglePlayerCollapseBtn.textContent = isCollapsed ? '영상 펼치기' : '영상 접기';
+}
+
+function renderVideoPlayer(lecture, forceReset = false) {
+  const baseUrl = getVideoBaseEmbedUrl(lecture);
+  if (!baseUrl) {
+    el.lecturePlayerSection.classList.add('hidden');
+    if (state.loadedVideoLectureId !== null) {
+      el.lectureVideoIframe.src = 'about:blank';
+      state.loadedVideoLectureId = null;
+    }
+    return;
+  }
+
+  el.lecturePlayerSection.classList.remove('hidden');
+  el.openExternalPlayerLink.href = baseUrl;
+  el.pipTitleLabel.textContent = lecture.title || '강의 영상 재생';
+  el.lectureVideoIframe.title = `${lecture.title} 강의 영상`;
+
+  if (forceReset || state.loadedVideoLectureId !== lecture.id) {
+    el.lectureVideoIframe.src = buildVideoEmbedUrl(lecture, 0, false);
+    el.playerTimeIndicator.textContent = '00:00부터 대기';
+    state.loadedVideoLectureId = lecture.id;
+  }
+
+  updatePlayerControlsUI();
+}
+
+function seekVideoTo(timeStr, autoplay = true) {
+  if (!state.activeLecture || !getVideoBaseEmbedUrl(state.activeLecture)) return false;
+  const sec = parseTimestampToSeconds(timeStr);
+  const label = timeStr || '00:00';
+
+  if (state.playerCollapsed) {
+    state.playerCollapsed = false;
+    try {
+      localStorage.setItem(STORAGE_KEYS.playerCollapsed, 'false');
+    } catch {}
+  }
+
+  el.lectureVideoIframe.src = buildVideoEmbedUrl(state.activeLecture, sec, autoplay);
+  el.playerTimeIndicator.textContent = autoplay ? `${label}부터 재생 중` : `${label} 시점 준비됨`;
+  state.loadedVideoLectureId = state.activeLecture.id;
+  updatePlayerControlsUI();
+
+  if (state.activeLecture.id) {
+    window.history.replaceState(
+      null,
+      '',
+      `#lecture=${encodeURIComponent(state.activeLecture.id)}&t=${encodeURIComponent(label)}`
+    );
+  }
+  return true;
+}
+
 function renderLecture(lecture) {
   state.activeLecture = lecture;
   state.activeLectureId = lecture.id;
@@ -318,6 +418,7 @@ function renderLecture(lecture) {
   const glossary = lecture.glossary || [];
   el.glossaryCountBadge.textContent = String(glossary.length);
 
+  renderVideoPlayer(lecture);
   renderTranscriptSections(lecture);
   renderSummaryView(lecture);
   renderGlossaryView(lecture);
@@ -334,6 +435,7 @@ function renderTranscriptSections(lecture) {
   const sections = lecture.sections || [];
   const glossary = lecture.glossary || [];
   const query = state.inpageQuery.trim();
+  const hasVideo = Boolean(getVideoBaseEmbedUrl(lecture));
   let matchTotal = 0;
 
   if (query) {
@@ -356,15 +458,21 @@ function renderTranscriptSections(lecture) {
         .map((p, idx) => {
           const blockId = `${sec.id}-p-${idx}`;
           const formatted = highlightText(p.text || '', query, glossary);
+          const ts = p.time || sec.timestamp || '';
+          const tsTitle = hasVideo
+            ? `${ts}부터 영상 재생 (Ctrl/⌘+클릭: 링크 복사)`
+            : `링크 복사 (${ts})`;
           return `
-            <div class="paragraph-block" id="${escapeHtml(blockId)}" data-time="${escapeHtml(p.time || sec.timestamp || '')}">
-              <span class="para-time" title="링크 복사 (${escapeHtml(p.time || '')})" data-jump-time="${escapeHtml(p.time || '')}">${escapeHtml(p.time || '')}</span>
+            <div class="paragraph-block" id="${escapeHtml(blockId)}" data-time="${escapeHtml(ts)}">
+              <button type="button" class="para-time" title="${escapeHtml(tsTitle)}" data-jump-time="${escapeHtml(ts)}">${escapeHtml(ts)}</button>
               <p class="para-text">${formatted}</p>
             </div>
           `;
         })
         .join('');
 
+      const secTime = sec.timestamp || '';
+      const secBadgeTitle = hasVideo ? `${secTime} 구간부터 영상 재생` : secTime;
       return `
         <section class="transcript-section" id="${escapeHtml(sec.id)}">
           <div class="section-header">
@@ -372,7 +480,7 @@ function renderTranscriptSections(lecture) {
               <h2 class="section-heading">${escapeHtml(sec.title)}</h2>
               ${sec.summary ? `<p class="section-summary">${escapeHtml(sec.summary)}</p>` : ''}
             </div>
-            <span class="section-time-badge">${escapeHtml(sec.timestamp || '')}</span>
+            <button type="button" class="section-time-badge" title="${escapeHtml(secBadgeTitle)}" data-jump-time="${escapeHtml(secTime)}">${escapeHtml(secTime)}</button>
           </div>
           <div class="section-body">
             ${paragraphsHtml}
@@ -382,13 +490,29 @@ function renderTranscriptSections(lecture) {
     })
     .join('');
 
-  el.transcriptContainer.querySelectorAll('.para-time').forEach((node) => {
-    node.addEventListener('click', () => {
+  el.transcriptContainer.querySelectorAll('.para-time, .section-time-badge').forEach((node) => {
+    node.addEventListener('click', (e) => {
       const t = node.getAttribute('data-jump-time');
+      if (!t) return;
       const url = new URL(window.location.href);
       url.hash = `lecture=${encodeURIComponent(lecture.id)}&t=${encodeURIComponent(t)}`;
-      navigator.clipboard?.writeText(url.toString()).catch(() => {});
-      showToast(`시점 링크가 복사되었습니다 (${t})`);
+
+      if ((e.ctrlKey || e.metaKey) || !hasVideo) {
+        navigator.clipboard?.writeText(url.toString()).catch(() => {});
+        showToast(`시점 링크가 복사되었습니다 (${t})`);
+        return;
+      }
+
+      if (seekVideoTo(t, true)) {
+        if (!state.playerPip && window.innerWidth >= 900) {
+          const rect = el.lecturePlayerSection.getBoundingClientRect();
+          if (rect.bottom < 80) {
+            state.playerPip = true;
+            updatePlayerControlsUI();
+          }
+        }
+        showToast(`▶ ${t} 시점으로 영상을 이동했습니다`);
+      }
     });
   });
 
@@ -608,7 +732,7 @@ async function selectLecture(lectureId, jumpTime = null, jumpSection = null) {
       window.history.replaceState(null, '', `#lecture=${encodeURIComponent(lectureId)}`);
     } else {
       window.history.replaceState(null, '', `#lecture=${encodeURIComponent(lectureId)}&t=${encodeURIComponent(jumpTime)}`);
-      jumpToTimestamp(jumpTime, jumpSection);
+      jumpToTimestamp(jumpTime, jumpSection, false);
     }
   } catch (err) {
     showToast('강의를 불러오지 못했습니다.');
@@ -616,8 +740,11 @@ async function selectLecture(lectureId, jumpTime = null, jumpSection = null) {
   }
 }
 
-function jumpToTimestamp(timeStr, sectionId = null) {
+function jumpToTimestamp(timeStr, sectionId = null, autoplayVideo = true) {
   switchTab('transcript');
+  if (timeStr && getVideoBaseEmbedUrl(state.activeLecture)) {
+    seekVideoTo(timeStr, autoplayVideo);
+  }
   requestAnimationFrame(() => {
     let target = null;
     if (timeStr) {
@@ -806,6 +933,8 @@ function buildLectureMarkdown(lecture) {
   if (lecture.date) meta.push(`- **게시일**: ${lecture.date}`);
   if (lecture.duration) meta.push(`- **재생시간**: ${lecture.duration}`);
   if (lecture.sourceUrl) meta.push(`- **원문 링크**: ${lecture.sourceUrl}`);
+  const embedUrl = getVideoBaseEmbedUrl(lecture);
+  if (embedUrl) meta.push(`- **영상 바로보기**: ${embedUrl}`);
   if (lecture.tags?.length) meta.push(`- **태그**: ${lecture.tags.join(', ')}`);
   lines.push(...meta, '');
 
@@ -997,6 +1126,45 @@ function bindEvents() {
   });
   el.sidebarBackdrop.addEventListener('click', closeMobileSidebar);
 
+  el.togglePlayerCollapseBtn.addEventListener('click', () => {
+    if (state.playerPip) {
+      state.playerPip = false;
+      state.playerCollapsed = false;
+    } else {
+      state.playerCollapsed = !state.playerCollapsed;
+    }
+    try {
+      localStorage.setItem(STORAGE_KEYS.playerCollapsed, String(state.playerCollapsed));
+    } catch {}
+    updatePlayerControlsUI();
+  });
+
+  el.togglePlayerPipBtn.addEventListener('click', () => {
+    state.playerPip = !state.playerPip;
+    if (state.playerPip && state.playerCollapsed) {
+      state.playerCollapsed = false;
+      try {
+        localStorage.setItem(STORAGE_KEYS.playerCollapsed, 'false');
+      } catch {}
+    }
+    updatePlayerControlsUI();
+  });
+
+  const exitPipInline = () => {
+    state.playerPip = false;
+    updatePlayerControlsUI();
+  };
+  el.unpinPlayerBtn.addEventListener('click', exitPipInline);
+  el.restorePlayerInlineBtn.addEventListener('click', exitPipInline);
+  el.closePipBtn.addEventListener('click', () => {
+    state.playerPip = false;
+    state.playerCollapsed = true;
+    try {
+      localStorage.setItem(STORAGE_KEYS.playerCollapsed, 'true');
+    } catch {}
+    updatePlayerControlsUI();
+  });
+
   el.guideModalBtn.addEventListener('click', () => el.guideModal.classList.remove('hidden'));
   el.closeGuideModalBtn.addEventListener('click', () => el.guideModal.classList.add('hidden'));
   el.guideModal.addEventListener('click', (e) => {
@@ -1026,6 +1194,8 @@ function bindEvents() {
           date: parsed.date || '',
           duration: parsed.duration || '',
           durationSeconds: parsed.durationSeconds || 0,
+          videoId: parsed.videoId || '',
+          videoEmbedUrl: parsed.videoEmbedUrl || '',
           tags: parsed.tags || [],
         });
       }
@@ -1041,23 +1211,24 @@ function bindEvents() {
 
   el.downloadTemplateBtn.addEventListener('click', () => {
     const template = {
-      id: 'vol1-02-trapezius',
+      id: 'vol1-03-example',
       seriesId: 'kmfc-vol1',
-      episode: 2,
-      title: '최신근육학총설 2(승모근)',
+      episode: 3,
+      title: '최신근육학총설 3(강의명)',
       instructor: '단송',
       date: '2019-11-20',
       duration: '45:00',
       durationSeconds: 2700,
-      sourceUrl: 'https://m.cafe.daum.net/kmfc2/haqk/12',
-      tags: ['승모근', '상부승모근', '방사통'],
+      sourceUrl: 'https://m.cafe.daum.net/kmfc2/haqk/13',
+      videoId: '카카오TV_영상ID_입력',
+      tags: ['키워드1', '키워드2'],
       overview: '강의 전체 요약을 여기에 작성합니다.',
       keyTakeaways: ['핵심 요약 포인트 1', '핵심 요약 포인트 2'],
       glossary: [
         {
-          term: '승모근',
-          hanjaOrEn: 'Trapezius',
-          definition: '후두골과 경추·흉추 극돌기에서 기시하여 쇄골·견봉·견갑극에 정지하는 근육.',
+          term: '용어명',
+          hanjaOrEn: 'English / 한자',
+          definition: '용어에 대한 핵심 정의를 여기에 작성합니다.',
           timestamp: '00:00',
           sectionId: 'sec-01',
         },
@@ -1066,7 +1237,7 @@ function bindEvents() {
         {
           id: 'sec-01',
           timestamp: '00:00',
-          title: '강의 도입 및 승모근 해부학 개요',
+          title: '첫 번째 섹션 제목',
           summary: '구간 요약',
           paragraphs: [
             { time: '00:00', text: '녹취 본문 첫 번째 단락을 여기에 작성합니다.' },

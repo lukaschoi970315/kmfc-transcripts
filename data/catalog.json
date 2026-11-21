@@ -24,6 +24,8 @@
       "duration": "52:52",
       "durationSeconds": 3172,
       "sourceUrl": "https://m.cafe.daum.net/kmfc2/haqk/11",
+      "videoId": "v59b2QlQjbMeGjZiAeeIlGM",
+      "videoEmbedUrl": "",
       "tags": [
         "용어해설",
         "트리거포인트",
@@ -37,6 +39,34 @@
       "sectionCount": 8,
       "file": "data/lectures/vol1-01-terminology.json",
       "markdownFile": "transcripts/vol1-01-terminology.md"
+    },
+    {
+      "id": "vol1-02-trapezius",
+      "seriesId": "kmfc-vol1",
+      "episode": 2,
+      "title": "최신근육학총설 2(승모근)",
+      "instructor": "단송",
+      "date": "2019-11-14",
+      "duration": "63:40",
+      "durationSeconds": 3820,
+      "sourceUrl": "https://m.cafe.daum.net/kmfc2/haqk/12",
+      "videoId": "vab0bNvZwndnhwchcwZdwsj",
+      "videoEmbedUrl": "",
+      "tags": [
+        "승모근",
+        "해부학적부착",
+        "신경지배",
+        "척수부신경",
+        "고정점",
+        "측굴회전",
+        "턱관절",
+        "자세교정"
+      ],
+      "summary": "『최신근육학총설』 1권 28페이지 이후 본론인 승모근(Trapezius)의 해부학적 부착, 3가지 섬유 주행과 경결 순서(TP 1~7), 척수부신경(CN XI) 및 경추신경 C2~C4 신경지배와 피부신경 폐색, 살아 있는 인체 기준의 고정점(Fixation Point) 원리, 승모근 상부섬유의 편측·양측 기능과 경추 압착·추골동맥·턱관절·요통(T12-L1) 보상 연쇄, 그리고 삼각근 보조와 목 안정화 기능을 다룬 실전 임상 강의입니다.",
+      "glossaryCount": 22,
+      "sectionCount": 8,
+      "file": "data/lectures/vol1-02-trapezius.json",
+      "markdownFile": "transcripts/vol1-02-trapezius.md"
     }
   ]
 }
